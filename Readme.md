@@ -1,6 +1,5 @@
 ChickenFuck
 ===========
----
 
 A simple [Brainfuck](http://en.wikipedia.org/wiki/Brainfuck) interpreter written in C.
 
