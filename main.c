@@ -79,7 +79,6 @@ int main(int argc, char **argv)
 			//. 	output the byte at the data pointer.
 			case '.':
 				putchar(*data_ptr);
-				//printf("%c", memory[ptr]);
 				break;
 			//, 	accept one byte of input, storing its value in the byte at the data pointer.
 			case ',':
@@ -142,7 +141,7 @@ int main(int argc, char **argv)
 		if(prog_ptr >= end || prog_ptr < prog)
 			break;
 	}
-	fflush(stdout);
 done:
+	fflush(stdout);
 	return 0;
 }
