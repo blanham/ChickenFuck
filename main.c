@@ -5,25 +5,25 @@
 
 #define ARRAY_SIZE 65536
 
-uint8_t memory[ARRAY_SIZE] = {0};
-uint8_t *data_ptr = memory;
-uint16_t ptr = 0;
+uint8_t data[ARRAY_SIZE] = {0};
+uint8_t *data_ptr = data;
+uint8_t *data_end = data + sizeof(data);
 
-uint8_t helloworld[] = "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.";
-uint8_t *hello_end = helloworld + sizeof(helloworld) - 1;
-int hello_len = sizeof(helloworld) - 1;
+uint8_t helloworld[] = "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>-"
+					   "--.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.";
 
 int main(int argc, char **argv)
 {
 	uint8_t *prog, *prog_ptr, *end;
-	uint8_t cmd;
 	int c, prog_len, brack_cnt = 0;
 
 	if(argc == 1)
 	{
 		prog = helloworld;
-		prog_len = hello_len;
-	} else {
+		prog_len = sizeof(helloworld);
+	}
+	else
+	{
 		if(argv[1][0] == '-'  && argv[1][1] == 'f')
 		{	
 			FILE *fp = fopen(argv[2], "r");
@@ -39,7 +39,9 @@ int main(int argc, char **argv)
 
 			prog = malloc(prog_len + 1);
 			fread(prog, prog_len, 1, fp);
-		} else {
+		}
+		else
+		{
 			prog_len = strlen(argv[1]);
 			prog = malloc(prog_len + 1);
 			//strcpying like a madman!
@@ -52,40 +54,38 @@ int main(int argc, char **argv)
 
 	while(1)
 	{
-		cmd = *prog_ptr;
-		brack_cnt = 0;
-		switch(cmd)
+		switch(*prog_ptr)
 		{
 			//> 	increment the data pointer (to point to the next cell to the right).
 			case '>':
-				ptr++;
+				data_ptr++;
 				break;
 			//< 	decrement the data pointer (to point to the next cell to the left).
 			case '<':
-				if(ptr == 0)
+				if(data_ptr == data)
 					return 0;
-				ptr--;
+				data_ptr--;
 				break;
 			//+ 	increment (increase by one) the byte at the data pointer.
 			case '+':
-				if(ptr == (ARRAY_SIZE - 1))
+				if(data_ptr == data_end)
 					return 0;
-				memory[ptr]++;
+				(*data_ptr)++;
 				break;
 			//- 	decrement (decrease by one) the byte at the data pointer.
 			case '-':
-				memory[ptr]--;
+				(*data_ptr)--;
 				break;
 			//. 	output the byte at the data pointer.
 			case '.':
-				putchar(memory[ptr]);
+				putchar(*data_ptr);
 				//printf("%c", memory[ptr]);
 				break;
 			//, 	accept one byte of input, storing its value in the byte at the data pointer.
 			case ',':
 				c = getchar();
 				if(c != EOF)
-					memory[ptr] = c;
+					*data_ptr= c;
 				else
 					break;
 				break;
@@ -93,8 +93,9 @@ int main(int argc, char **argv)
 			//		pointer forward to the next command, jump it forward to the command after the 
 			//		matching ] command.
 			case '[':
-				if(memory[ptr] == 0)
+				if(*data_ptr == 0)
 				{
+					brack_cnt = 0;
 					do {
 						if(*++prog_ptr == ']' && brack_cnt == 0)
 							break;
@@ -112,8 +113,9 @@ int main(int argc, char **argv)
 			//		instruction pointer forward to the next command, jump it back to the 
 			//		command after the matching [ command.
 			case ']':
-				if(memory[ptr] != 0)
+				if(*data_ptr != 0)
 				{
+					brack_cnt = 0;
 					do {
 						//printf("] jump\n");
 						prog_ptr--;
